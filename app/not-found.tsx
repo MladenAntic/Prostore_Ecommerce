@@ -17,7 +17,7 @@ export default function NotFound() {
       />
       <div className="w-1/3 rounded-lg p-6 text-center shadow-md">
         <h1 className="mb-4 text-3xl font-bold">Not Found</h1>
-        <p className="text-destructive mb-4">
+        <p className="mb-4 text-destructive">
           Could not find the requested page
         </p>
         <Button asChild>

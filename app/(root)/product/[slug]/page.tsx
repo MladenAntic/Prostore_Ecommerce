@@ -1,10 +1,14 @@
 import { ProductImages } from "@/components/shared/product/ProductImages";
 import { ProductPrice } from "@/components/shared/product/ProductPrice";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { getProductBySlug } from "@/lib/actions/product.actions";
 import { notFound } from "next/navigation";
+import { AddToCart } from "@/components/shared/product/AddToCart";
+import { getMyCart } from "@/lib/actions/cart.actions";
+import { ReviewList } from "./ReviewList";
+import { auth } from "@/auth";
+import { Rating } from "@/components/shared/product/Rating";
 
 export default async function ProductDetailsPage(props: {
   params: Promise<{ slug: string }>;
@@ -14,6 +18,11 @@ export default async function ProductDetailsPage(props: {
   const product = await getProductBySlug(slug);
 
   if (!product) notFound();
+
+  const session = await auth();
+  const userId = session?.user?.id;
+
+  const cart = await getMyCart();
 
   return (
     <>
@@ -30,9 +39,8 @@ export default async function ProductDetailsPage(props: {
                 {product.brand} {product.category}
               </p>
               <h1 className="h3-bold">{product.name}</h1>
-              <p>
-                {product.rating} of {product.numReviews} Reviews
-              </p>
+              <Rating value={Number(product.rating)} />
+              <p>{product.numReviews}</p>
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
                 <ProductPrice
                   value={Number(product.price)}
@@ -67,13 +75,31 @@ export default async function ProductDetailsPage(props: {
                 </div>
                 {product.stock > 0 && (
                   <div className="flex-center">
-                    <Button className="w-full">Add To Cart</Button>
+                    <AddToCart
+                      cart={cart}
+                      item={{
+                        productId: product.id,
+                        name: product.name,
+                        slug: product.slug,
+                        price: product.price,
+                        qty: 1,
+                        image: product.images[0],
+                      }}
+                    />
                   </div>
                 )}
               </CardContent>
             </Card>
           </div>
         </div>
+      </section>
+      <section className="mt-10">
+        <h2 className="h2-bold mb-6">Customer Reviews</h2>
+        <ReviewList
+          userId={userId || ""}
+          productId={product.id}
+          productSlug={product.slug}
+        />
       </section>
     </>
   );
