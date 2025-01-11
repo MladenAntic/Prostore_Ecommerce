@@ -71,7 +71,7 @@ export const ProductForm = ({
     if (type === "Update") {
       if (!productId) router.push("/admin/products");
 
-      const res = await updateProduct({ ...values, id: productId });
+      const res = await updateProduct({ ...values, id: productId as string });
 
       if (!res.success) {
         toast({
